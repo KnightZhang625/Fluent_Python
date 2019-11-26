@@ -117,5 +117,81 @@ class Vector(object):
     def __len__(self):
         return len(self._components)
     
-    def __getitem__(self. index):
+    def __getitem__(self, index):
+        """切片操作"""
         return self._components[index]
+
+vec = Vector(range(10))
+print(vec[1: 3])
+
+# 实现属性
+class test(object):
+    def __init__(self):
+        self.x = 1
+        self.y = 2
+    
+    def __setattr__(self, name, value):
+        """设置属性"""
+        if name in self.__dir__():
+            raise ValueError('{} exits'.format(name))
+        return super().__setattr__(name, value)
+    
+    def __getattr__(self, name):
+        """获取属性"""
+        raise ValueError('{} not exits.'.format(name))
+
+t = test()
+print(t.x)
+t.z = 3
+print(t.z)
+
+# 实现高级hash
+import functools
+
+class hashTest(object):
+    def __init__(self, array):
+        if array is None:
+            self.array = []
+        else:
+            self.array = list(array)
+
+    def __hash__(self):
+        hashes = map(hash, self.array)
+        return functools.reduce(lambda x, y: x^y, hashes)   # XOR异或, 相同为0, 不同为1
+    
+    def __eq__(self, other):
+        if len(self) != len(other):
+            return False
+        for a, b in zip(self, other):
+            if a != b:
+                return False
+        return True
+    
+    def __len__(self):
+        return len(self.array)
+    
+    def __iter__(self):
+        for a in self.array:
+            yield a
+
+h1 = hashTest([1, 2, 3])
+h2 = hashTest([1, 2, 3])
+print(h1 == h2)
+
+# zip_longest 函数, 会填充不够的地方
+from itertools import zip_longest
+
+A = [1, 2, 3]
+B = [4, 5, 6, 7, 8]
+for a, b in zip_longest(A, B, fillvalue=0):
+    print(a, b)
+
+# itertools.chain函数
+# 创建一个迭代器，它首先返回第一个可迭代对象中所有元素，
+# 接着返回下一个可迭代对象中所有元素，直到耗尽所有可迭代对象中的元素。可将多个序列处理为单个序列。
+import itertools
+
+a = [i for i in range(10)]
+b = range(5)
+c = list(itertools.chain(a, b))
+print(c)
